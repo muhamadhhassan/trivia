@@ -178,23 +178,83 @@ def create_app(test_config=None):
         'current_category': category.type
       })
 
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
-  and return a random questions within the given category, 
-  if provided, and that is not one of the previous questions. 
+      
+  @app.route('/quizzes', methods=['POST'])
+    def get_random_quiz_question():
+      '''
+      Playing quiz endpoint.
+      '''
 
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
+      body = request.get_json()
+      previous = body.get('previous_questions')
+      category = body.get('quiz_category')
 
-  '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+      if ((category is None) or (previous is None)):
+        abort(400)
+
+      if (category['id'] == 0):
+        questions = Question.query.all()
+      else:
+        questions = Question.query.filter_by(category=category['id']).all()
+
+      total = len(questions)
+
+      # query a random question
+      def get_random_question():
+        return questions[random.randrange(0, len(questions), 1)]
+
+      # checks to see if a question was used
+      def check_if_used(question):
+        used = False
+        for q in previous:
+          if (q == question.id):
+            used = True
+
+        return used
+
+      # get random question
+      question = get_random_question()
+
+      # check if used, execute until unused question found
+      while (check_if_used(question)):
+        question = get_random_question()
+
+        # if all questions have been displayed, return without question
+        # required in case category has more than five questions
+        if (len(previous) == total):
+          return jsonify({
+            'success': True
+          })
+
+      # return the question
+      return jsonify({
+        'success': True,
+        'question': question.format()
+      })
+
+  @app.errorhandler(404)
+    def not_found(error):
+      return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "Record was not found"
+      }), 404
+
+  @app.errorhandler(422)
+    def unprocessable(error):
+      return jsonify({
+        "success": False,
+        "error": 422,
+        "message": "Unprocessable Entity"
+      }), 422
+
+  @app.errorhandler(400)
+    def bad_request(error):
+      return jsonify({
+        "success": False,
+        "error": 400,
+        "message": "Bad request"
+      }), 400
   
   return app
 
