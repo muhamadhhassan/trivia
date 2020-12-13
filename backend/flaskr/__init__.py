@@ -29,7 +29,24 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  @app.route('/categories')
+    def get_categories():
+      # query all categories from db and map them dict
+      categories = Category.query.all()
+      mappedCategories = {}
+      for category in categories:
+        mappedCategories[category.id] = category.type
 
+      # abort with 404 response if no categories were found
+      if (len(mappedCategories) == 0):
+        abort(404)
+
+      return jsonify({
+        'success': True,
+        'data': {
+          'categories': mappedCategories
+        }
+      })
 
   '''
   @TODO: 
