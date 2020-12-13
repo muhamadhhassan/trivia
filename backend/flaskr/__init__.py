@@ -92,16 +92,65 @@ def create_app(test_config=None):
       except:
         abort(422)
 
-  '''
-  @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
+  @app.route('/questions', methods=['POST'])
+    def post_question():
+      '''
+      Create new question and search questions endpoint.
+      '''
+      body = request.get_json()
 
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
+      # if search term is present
+      if (body.get('searchTerm')):
+        searchTerm = body.get('searchTerm')
+
+        # query the database using search term
+        selection = Question.query.filter(Question.question.ilike(f'%{searchTerm}%')).all()
+
+        # 404 if no results found
+        if (len(selection) == 0):
+          abort(404)
+
+        # paginate the results
+        paginated = paginate_questions(request, selection)
+
+        # return results
+        return jsonify({
+          'success': True,
+          'questions': paginated,
+          'total_questions': len(Question.query.all())
+        })
+      # if no search term, create new question
+      else:
+        # load input from body
+        new_question = body.get('question')
+        new_answer = body.get('answer')
+        new_difficulty = body.get('difficulty')
+        new_category = body.get('category')
+
+        # validate that all inputs have data
+        if ((new_question is None) or (new_answer is None) or (new_difficulty is None) or (new_category is None)):
+          abort(422)
+
+        try:
+          # create and insert new record
+          question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
+          question.insert()
+
+          # query all questions and paginate
+          selection = Question.query.order_by(Question.id).all()
+          current_questions = paginate_questions(request, selection)
+
+          return jsonify({
+            'success': True,
+            'created': question.id,
+            'question_created': question.question,
+            'questions': current_questions,
+            'total_questions': len(Question.query.all())
+          })
+
+        except:
+          # abort with unprocessable entity response
+          abort(422)
 
   '''
   @TODO: 
