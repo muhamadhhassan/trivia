@@ -113,6 +113,59 @@ class TriviaTestCase(unittest.TestCase):
     # check that question is not None
     self.assertIsNotNone(question)
 
+  def test_422_if_question_creation_fails(self):
+    """Tests question creation failure 422"""
+
+    # get number of questions before post
+    questions_before = Question.query.all()
+
+    # create new question without json data, then load response data
+    response = self.client().post('/questions', json={})
+    data = json.loads(response.data)
+
+    # get number of questions after post
+    questions_after = Question.query.all()
+
+    # check status code and success message
+    self.assertEqual(response.status_code, 422)
+    self.assertEqual(data['success'], False)
+
+    # check if questions_after and questions_before are equal
+    self.assertTrue(len(questions_after) == len(questions_before))
+
+  def test_search_questions(self):
+    """Tests search questions success"""
+
+    # send post request with search term
+    response = self.client().post('/questions', json={'searchTerm': 'egyptians'})
+
+    # load response data
+    data = json.loads(response.data)
+
+    # check response status code and message
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(data['success'], True)
+
+    # check that number of results = 1
+    self.assertEqual(len(data['questions']), 1)
+
+    # check that id of question in response is correct
+    self.assertEqual(data['questions'][0]['id'], 23)
+
+  def test_404_if_search_questions_fails(self):
+    """Tests search questions failure 404"""
+
+    # send post request with search term that should fail
+    response = self.client().post('/questions', json={'searchTerm': 'abcdefghijk'})
+
+    # load response data
+    data = json.loads(response.data)
+
+    # check response status code and message
+    self.assertEqual(response.status_code, 404)
+    self.assertEqual(data['success'], False)
+    self.assertEqual(data['message'], 'resource not found')
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
   unittest.main()
