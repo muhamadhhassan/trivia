@@ -43,9 +43,7 @@ def create_app(test_config=None):
 
       return jsonify({
         'success': True,
-        'data': {
-          'categories': mappedCategories
-        }
+        'categories': mappedCategories
       })
 
   @app.route('/questions')
@@ -71,11 +69,9 @@ def create_app(test_config=None):
 
       return jsonify({
         'success': True,
-        'data': {
-          'questions': currentQuestionsPage,
-          'total_questions': questionsCount,
-          'categories': mappedCategories
-        }
+        'questions': currentQuestionsPage,
+        'total_questions': questionsCount,
+        'categories': mappedCategories
       })
 
   @app.route('/questions/<int:id>', methods=['DELETE'])
