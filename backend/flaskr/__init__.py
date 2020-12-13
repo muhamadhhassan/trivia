@@ -48,18 +48,35 @@ def create_app(test_config=None):
         }
       })
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests for questions, 
-  including pagination (every 10 questions). 
-  This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
+  @app.route('/questions')
+    def get_questions():
+      '''
+      Querying all questions endpoint.
+      '''
 
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
-  '''
+      # query all questions and paginate
+      questions = Question.query.all()
+      questionsCount = len(questions)
+      currentQuestionsPage = paginate_questions(request, questions)
+
+      # query all categories and add to dict
+      categories = Category.query.all()
+      mappedCategories = {}
+      for category in categories:
+        mappedCategories[category.id] = category.type
+
+      # abort 404 if no questions were found
+      if (len(currentQuestionsPage) == 0):
+        abort(404)
+
+      return jsonify({
+        'success': True,
+        'data': {
+          'questions': currentQuestionsPage,
+          'total_questions': questionsCount,
+          'categories': mappedCategories
+        }
+      })
 
   '''
   @TODO: 
