@@ -8,6 +8,16 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+# utility for paginating questions
+def paginate_questions(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+
+    return current_questions
 
 def create_app(test_config=None):
     # create and configure the app
@@ -79,13 +89,15 @@ def create_app(test_config=None):
         '''
         try:
             question = Question.query.filter_by(id=id).one_or_none()
-        if question is None:
-            abort(404)
-        question.delete()
-        return jsonify({
-            'success': True,
-            'deleted': id
-        })
+
+            if question is None:
+                abort(404)
+                
+            question.delete()
+            return jsonify({
+                'success': True,
+                'deleted': id
+            })
 
         except:
             abort(422)
@@ -97,28 +109,27 @@ def create_app(test_config=None):
         '''
         body = request.get_json()
 
-        # if search term is present
+         # if search term is present
         if (body.get('searchTerm')):
-            searchTerm = body.get('searchTerm')
+            search_term = body.get('searchTerm')
 
-        # query the database using search term
-        selection = Question.query
-        .filter(Question.question.ilike(f'%{searchTerm}%'))
-        .all()
+            # query the database using search term
+            selection = Question.query.filter(
+                Question.question.ilike(f"%{search_term}%")).all()
 
-        # 404 if no results found
-        if (len(selection) == 0):
-            abort(404)
+            # 404 if no results found
+            if (len(selection) == 0):
+                abort(404)
 
-        # paginate the results
-        paginated = paginate_questions(request, selection)
+            # paginate the results
+            paginated = paginate_questions(request, selection)
 
-        # return results
-        return jsonify({
-            'success': True,
-            'questions': paginated,
-            'total_questions': len(Question.query.all())
-        })
+            # return results
+            return jsonify({
+                'success': True,
+                'questions': paginated,
+                'total_questions': len(Question.query.all())
+            })
         # if no search term, create new question
         else:
             # load input from body
@@ -215,7 +226,7 @@ def create_app(test_config=None):
                 if (q == question.id):
                     used = True
 
-        return used
+            return used
 
         # get random question
         question = get_random_question()
