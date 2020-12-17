@@ -8,6 +8,7 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+
 # utility for paginating questions
 def paginate_questions(request, selection):
     page = request.args.get('page', 1, type=int)
@@ -18,6 +19,7 @@ def paginate_questions(request, selection):
     current_questions = questions[start:end]
 
     return current_questions
+
 
 def create_app(test_config=None):
     # create and configure the app
@@ -92,14 +94,14 @@ def create_app(test_config=None):
 
             if question is None:
                 abort(404)
-                
+
             question.delete()
             return jsonify({
                 'success': True,
                 'deleted': id
             })
 
-        except:
+        except not_found:
             abort(422)
 
     @app.route('/questions', methods=['POST'])
@@ -109,7 +111,7 @@ def create_app(test_config=None):
         '''
         body = request.get_json()
 
-         # if search term is present
+        # if search term is present
         if (body.get('searchTerm')):
             search_term = body.get('searchTerm')
 
@@ -165,7 +167,7 @@ def create_app(test_config=None):
                     'total_questions': len(Question.query.all())
                 })
 
-            except:
+            except unprocessable:
                 # abort with unprocessable entity response
                 abort(422)
 
