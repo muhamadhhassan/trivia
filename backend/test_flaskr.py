@@ -63,7 +63,7 @@ class TriviaTestCase(unittest.TestCase):
         # check status code and message
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'resource not found')
+        self.assertEqual(data['message'], 'Record not found')
 
     def test_delete_question(self):
         """Tests question deletion success"""
@@ -172,7 +172,7 @@ class TriviaTestCase(unittest.TestCase):
         # check response status code and message
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'resource not found')
+        self.assertEqual(data['message'], 'Record not found')
 
     def test_get_questions_by_category(self):
         """Tests getting questions by category success"""
@@ -205,7 +205,7 @@ class TriviaTestCase(unittest.TestCase):
         # check response status code and message
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'bad request')
+        self.assertEqual(data['message'], 'Bad request')
 
     def test_play_quiz_game(self):
         """Tests playing quiz game success"""
@@ -247,7 +247,7 @@ class TriviaTestCase(unittest.TestCase):
         # check response status code and message
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'bad request')
+        self.assertEqual(data['message'], 'Bad request')
 
     # Make the tests conveniently executable
     if __name__ == "__main__":
