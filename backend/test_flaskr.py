@@ -63,7 +63,7 @@ class TriviaTestCase(unittest.TestCase):
         # check status code and message
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Record not found')
+        self.assertEqual(data['message'], 'Record was not found')
 
     def test_delete_question(self):
         """Tests question deletion success"""
@@ -172,7 +172,7 @@ class TriviaTestCase(unittest.TestCase):
         # check response status code and message
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Record not found')
+        self.assertEqual(data['message'], 'Record was not found')
 
     def test_get_questions_by_category(self):
         """Tests getting questions by category success"""
